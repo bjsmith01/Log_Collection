@@ -28,9 +28,9 @@ namespace Log_Collection.Controllers
         {
             _logger = logger;
             _configuration = configuration;
-            _logDir = _configuration["logDir"]?.ToString().TrimEnd(new char[] {'/','\\'});
+            _logDir = _configuration["LOGDIR"]?.ToString().TrimEnd(new char[] {'/','\\'});
             _serverName = _configuration["SERVER_NAME"]?.ToString();
-            _children = _configuration["children"]?.ToString().Split(",") ?? new string[] {};
+            _children = _configuration["CHILDREN"]?.ToString().Split(",") ?? new string[] {};
         }
 
         // Gets list of all logs
@@ -56,7 +56,7 @@ namespace Log_Collection.Controllers
                         continue;
                     }
                     var fileNames = await GetServerLogNames(child);
-                    fileLists.Add(child, fileNames);
+                    fileLists.Add(fileNames.Item1, fileNames.Item2);
                 }
                 
                 var files = new DirectoryInfo(_logDir).GetFiles()
@@ -94,7 +94,9 @@ namespace Log_Collection.Controllers
                     numEvents = 25;
                 }
                 // only make requests to other servers if the entered name isn't the current server
-                if (!string.IsNullOrWhiteSpace(body.Filter?.ServerName) && _serverName != body.Filter.ServerName)
+                // this requires that the domain contains the server name, which is fine for a proof of concept, but not prod
+                // ideally some kind of dictionary would be build containing {serverName : url}
+                if (!string.IsNullOrWhiteSpace(body.Filter?.ServerName) && !body.Filter.ServerName.Contains(_serverName))
                 {
                     lines = await GetServerLogs(body.Filter.ServerName, body);
                 }
@@ -111,9 +113,9 @@ namespace Log_Collection.Controllers
                         return BadRequest(resp);
                     }
                     
-                    if (System.IO.File.Exists($"{_logDir}\\{body.FileName}")){
+                    if (System.IO.File.Exists($"{_logDir}/{body.FileName}")){
                         // return logs in reverse chronological order (assuming logs were appended to file)
-                        lines = System.IO.File.ReadAllLines($"{_logDir}\\{body.FileName}").Reverse();
+                        lines = System.IO.File.ReadAllLines($"{_logDir}/{body.FileName}").Reverse();
                         lineCount = lines.Count();
 
                         if (!string.IsNullOrEmpty(body.Filter?.Keyword)) {
@@ -143,26 +145,29 @@ namespace Log_Collection.Controllers
         }
 
         // make web request to child server to get log file names
-        private async Task<IEnumerable<string>> GetServerLogNames(string child){
+        private async Task<(string, IEnumerable<string>)> GetServerLogNames(string child){
             IEnumerable<string> logFileNames = new string[] {};
+            string childName = string.Empty;
             
             using (var client = new HttpClient()) {
                 client.BaseAddress = new Uri(child);                
 
-                var response = await client.GetAsync("logs");
+                var response = await client.GetAsync("log");
                 if (response != null) {
-                    var resp = JsonSerializer.Deserialize<ApiReturn>(await response.Content.ReadAsStringAsync());
-                    var logDict = (Dictionary<string,IEnumerable<string>>) resp.Data;
-                    logFileNames = logDict[child];
+                    var resp = JsonSerializer.Deserialize<JsonElement>(await response.Content.ReadAsStringAsync());
+                    childName = resp.GetProperty("ServerName").GetString();
+                    var logDict = resp.GetProperty("Data").GetProperty(childName);
+                    logFileNames = logDict.EnumerateArray().Select(_ => _.ToString());
                 }
             }
 
-            return logFileNames;
+            return (childName, logFileNames);
         }
 
         // Make web request to child server to get logs. 
         private async Task<IEnumerable<string>> GetServerLogs(string child, RequestBody body){
             IEnumerable<string> logs = new string[] {};
+            string childName = string.Empty;
             
             // make get request to child servers
             using (var client = new HttpClient()){
@@ -173,10 +178,12 @@ namespace Log_Collection.Controllers
                     "application/json"
                 );
 
-                var response = await client.PostAsync("logs", content);
+                var response = await client.PostAsync("log", content);
                 if (response != null) {
-                    var resp = JsonSerializer.Deserialize<ApiReturn>(await response.Content.ReadAsStringAsync());
-                    logs = (IEnumerable<string>)resp.Data;
+                    var resp = JsonSerializer.Deserialize<JsonElement>(await response.Content.ReadAsStringAsync());
+                    childName = resp.GetProperty("ServerName").GetString();
+                    var logDict = resp.GetProperty("Data");
+                    logs = logDict.EnumerateArray().Select(_ => _.ToString());
                 }
             }
 

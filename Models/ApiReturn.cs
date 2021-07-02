@@ -18,7 +18,7 @@ namespace Log_Collection
             }
         }
 
-        public string StatusCodeText { get {return _statusCodeText; } }
+        public string StatusCodeText { get {return _statusCodeText; } set { _statusCodeText = value; } }
 
         public string ServerName { get; set; }
 

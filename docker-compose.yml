@@ -1,0 +1,36 @@
+# Please refer https://aka.ms/HTTPSinContainer on how to setup an https developer certificate for your ASP .NET Core service.
+
+version: '3.4'
+
+services:
+  logcollection:
+    image: logcollection
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    environment:
+      - SERVER_NAME=parent
+      - LOGDIR=/var/logs
+      - CHILDREN=http://child1:5000
+    ports:
+      - 5000:5000
+    volumes:
+      - ./sample_logs:/var/logs
+    networks:
+      - logserver
+  child1:
+    image: logcollectionchild1
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    environment:
+      - SERVER_NAME=child1
+      - LOGDIR=/var/logs
+    ports:
+      - 5001:5000
+    volumes:
+      - ./sample_logs:/var/logs
+    networks:
+      - logserver  
+networks: 
+  logserver:
