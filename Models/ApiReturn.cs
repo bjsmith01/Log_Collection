@@ -1,13 +1,24 @@
 using System;
+using System.Net;
 
 namespace Log_Collection
 {
     public class ApiReturn
     {
-        // Http response status code
-        public int StatusCode { get; set; }
+        private int _statusCode;
+        private string _statusCodeText;
 
-        public string StatusCodeText { get; set; }
+        // Http response status code
+        public HttpStatusCode StatusCode { 
+            get { return (HttpStatusCode)_statusCode; }
+            set 
+            { 
+                _statusCode = (int)value;
+                _statusCodeText = Enum.GetName(typeof(HttpStatusCode), value);
+            }
+        }
+
+        public string StatusCodeText { get {return _statusCodeText; } }
 
         public string ServerName { get; set; }
 
@@ -18,11 +29,16 @@ namespace Log_Collection
         public object Data { get; set; }
     }
 
-    //public class
-    /*
-        {
-            log: string,
-            server: string
-        }
-    */ 
+    public class RequestBody
+    {
+        public Filter Filter { get; set; }
+        public string FileName { get; set; }
+    }
+
+    public class Filter 
+    {
+        public string Keyword { get; set; }
+        public int NumEvents { get; set; }
+    }
+     
 }
