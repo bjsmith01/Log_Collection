@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -21,17 +23,31 @@ namespace Log_Collection.Controllers
             _configuration = configuration;
         }
 
+        // Gets list of all logs
         [HttpGet]
-        public ApiReturn Get()
+        public IActionResult Get()
         {
-            string test = _configuration["logDir"].ToString();
-
+            string logDir = _configuration["logDir"].ToString();
+            string serverName = _configuration["SERVER_NAME"].ToString();
             var resp = new ApiReturn(){
-                StatusCode = 200,
-                Message = "OK",
-                Data = test
+                ServerName = serverName
             };
-            return resp;
+            try{
+                var files = new DirectoryInfo(logDir).GetFiles().Select(f => f.Name);
+
+                resp.StatusCode = (int)HttpStatusCode.OK;
+                resp.StatusCodeText = Enum.GetName(typeof(HttpStatusCode), HttpStatusCode.OK);
+                resp.Data = files;
+
+                return Ok(resp);
+            } 
+            catch (Exception e){
+                resp.StatusCode = (int)HttpStatusCode.InternalServerError;
+                resp.StatusCodeText = Enum.GetName(typeof(HttpStatusCode), HttpStatusCode.InternalServerError);                
+                resp.Message = e.Message;
+
+                return StatusCode((int)HttpStatusCode.InternalServerError, resp);
+            }
         }
     }
 }

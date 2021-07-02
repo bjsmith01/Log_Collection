@@ -7,6 +7,10 @@ namespace Log_Collection
         // Http response status code
         public int StatusCode { get; set; }
 
+        public string StatusCodeText { get; set; }
+
+        public string ServerName { get; set; }
+
         // User readable status code, error messagees, etc
         public string Message { get; set; }
 
