@@ -11,7 +11,7 @@ services:
     environment:
       - SERVER_NAME=parent
       - LOGDIR=/var/logs
-      - CHILDREN=http://child1:5000
+      - CHILDREN=http://child1:5000,http://child2:5000
     ports:
       - 5000:5000
     volumes:
@@ -31,6 +31,20 @@ services:
     volumes:
       - ./sample_logs:/var/logs
     networks:
-      - logserver  
+      - logserver
+  child2:
+    image: logcollectionchild2
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    environment:
+      - SERVER_NAME=child2
+      - LOGDIR=/var/logs
+    ports:
+      - 5002:5000
+    volumes:
+      - ./sample_logs:/var/logs
+    networks:
+      - logserver
 networks: 
   logserver:

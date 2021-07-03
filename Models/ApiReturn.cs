@@ -39,7 +39,7 @@ namespace Log_Collection
     {
         public string Keyword { get; set; }
         public int NumEvents { get; set; }
-        public string ServerName { get; set; }
+        public string[] ServerNames { get; set; }
     }
      
 }

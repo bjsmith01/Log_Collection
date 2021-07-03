@@ -1,0 +1,307 @@
+{
+	"info": {
+		"_postman_id": "3395ccea-d772-4577-b7c8-55d8f5b09cde",
+		"name": "Log Collection",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get List of Logs from child",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url2}}/log",
+					"host": [
+						"{{url2}}"
+					],
+					"path": [
+						"log"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get List of Logs from parent",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/log",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"log"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Select 10 lines from current server",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"FileName\": \"test.log\",\r\n    \"Filter\": {\r\n        \"Keyword\": \"1\",\r\n        \"NumEvents\": 10\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/log",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"log"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Select 10 lines from child server",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"FileName\": \"test.log\",\r\n    \"Filter\": {\r\n        \"Keyword\": \"1\",\r\n        \"NumEvents\": 10,\r\n        \"ServerNames\": [\"http://child1:5000\"]\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/log",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"log"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "404 Select 10 lines from child server doesn't exist",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"FileName\": \"test.log\",\r\n    \"Filter\": {\r\n        \"Keyword\": \"1\",\r\n        \"NumEvents\": 10,\r\n        \"ServerNames\": [\"NoServer\"]\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/log",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"log"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Select 25 lines w/ Filter",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"FileName\": \"test.log\",\r\n    \"Filter\": {\r\n        \"Keyword\": \"1\"\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/log",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"log"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Select file with no filter (defaults to 25)",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"FileName\": \"test.log\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/log",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"log"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "404 Select lines file no file passed",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"FileName\": \"\",\r\n    \"Filter\": {\r\n        \"Keyword\": \"1\"\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/log",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"log"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Select 25 lines (pass in invalid number of events)",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"FileName\": \"test.log\",\r\n    \"Filter\": {\r\n        \"Keyword\": \"1\",\r\n        \"NumEvents\": -1\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/log",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"log"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "404 Select lines file doesn't exist",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"FileName\": \"nofile.log\",\r\n    \"Filter\": {\r\n        \"Keyword\": \"1\"\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/log",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"log"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "500 Select lines child doesn't exist",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"FileName\": \"nofile.log\",\r\n    \"Filter\": {\r\n        \"Keyword\": \"1\",\r\n        \"ServerNames\": [\"NoServer\"]\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/log",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"log"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "url",
+			"value": "http://localhost:5000"
+		},
+		{
+			"key": "url2",
+			"value": "http://localhost:5001"
+		}
+	]
+}
